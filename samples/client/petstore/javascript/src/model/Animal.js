@@ -25,20 +25,19 @@
 (function(root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
-    define(['ApiClient'], factory);
+    define(['ApiClient', 'model/Cat', 'model/Dog'], factory);
   } else if (typeof module === 'object' && module.exports) {
     // CommonJS-like environments that support module.exports, like Node.
-    module.exports = factory(require('../ApiClient'));
+    module.exports = factory(require('../ApiClient'), require('./Cat'), require('./Dog'));
   } else {
     // Browser globals (root is window)
     if (!root.SwaggerPetstore) {
       root.SwaggerPetstore = {};
     }
-    root.SwaggerPetstore.Animal = factory(root.SwaggerPetstore.ApiClient);
+    root.SwaggerPetstore.Animal = factory(root.SwaggerPetstore.ApiClient, root.SwaggerPetstore.Cat, root.SwaggerPetstore.Dog);
   }
-}(this, function(ApiClient) {
+}(this, function(ApiClient, Cat, Dog) {
   'use strict';
-
 
 
 
@@ -70,7 +69,13 @@
    */
   exports.constructFromObject = function(data, obj) {
     if (data) {
-      obj = obj || new exports();
+      if (!obj) {
+        if(data['className'].toUpperCase() == 'Dog'.toUpperCase())
+          obj = Dog.constructFromObject(data, obj);
+        if(data['className'].toUpperCase() == 'Cat'.toUpperCase())
+          obj = Cat.constructFromObject(data, obj);
+        return obj;
+      }
 
       if (data.hasOwnProperty('className')) {
         obj['className'] = ApiClient.convertToType(data['className'], 'String');
